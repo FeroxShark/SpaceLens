@@ -1,177 +1,604 @@
 [
   {
+    "type": "exact",
+    "value": "/",
+    "safety": "danger",
+    "group": "system",
+    "en": { "what": "The root of your whole filesystem. Every other folder lives inside this one.", "risk": "This is the top of everything — you never delete it. Open the folders inside it to see what's using space." },
+    "es": { "what": "La raíz de todo tu sistema de archivos. Todas las demás carpetas viven adentro de esta.", "risk": "Es la cima de todo — nunca se borra. Entrá a las carpetas de adentro para ver qué usa espacio." }
+  },
+  {
     "type": "prefix",
     "value": "/usr",
     "safety": "danger",
-    "en": "Installed programs and their shared files. Managed by your package manager — never delete by hand.",
-    "es": "Programas instalados y sus archivos compartidos. Lo maneja tu gestor de paquetes — nunca lo borres a mano."
+    "group": "system",
+    "en": { "what": "Installed programs and their shared files (apps, libraries, icons, docs). Your package manager owns this folder.", "risk": "Deleting anything here breaks installed programs. Never delete by hand — uninstall apps with your package manager instead." },
+    "es": { "what": "Programas instalados y sus archivos compartidos (apps, librerías, íconos, docs). Lo maneja tu gestor de paquetes.", "risk": "Borrar algo acá rompe programas instalados. Nunca lo borres a mano — desinstalá apps con tu gestor de paquetes." }
+  },
+  {
+    "type": "prefix",
+    "value": "/usr/lib",
+    "safety": "danger",
+    "group": "system",
+    "en": { "what": "Shared libraries — code that many programs reuse to run.", "risk": "Deleting these makes programs stop opening. Don't touch." },
+    "es": { "what": "Librerías compartidas — código que muchos programas reusan para funcionar.", "risk": "Borrarlas hace que los programas dejen de abrir. No tocar." }
+  },
+  {
+    "type": "prefix",
+    "value": "/usr/share",
+    "safety": "danger",
+    "group": "system",
+    "en": { "what": "Read-only data for apps: icons, translations, documentation, fonts.", "risk": "Managed by your package manager. Removing items breaks apps in subtle ways — leave it." },
+    "es": { "what": "Datos de solo lectura de las apps: íconos, traducciones, documentación, fuentes.", "risk": "Lo maneja tu gestor de paquetes. Sacar cosas rompe apps de formas raras — dejalo." }
   },
   {
     "type": "prefix",
     "value": "/boot",
     "safety": "danger",
-    "en": "Your bootloader and kernel. Deleting anything here can make the system unbootable.",
-    "es": "Tu gestor de arranque y el kernel. Borrar algo acá puede dejar el sistema sin arrancar."
+    "group": "system",
+    "en": { "what": "Your bootloader and kernel — the files that start Linux when you turn on the PC.", "risk": "Deleting anything here can leave your computer unable to boot. Don't touch." },
+    "es": { "what": "Tu gestor de arranque y el kernel — los archivos que inician Linux al prender la PC.", "risk": "Borrar algo acá puede dejar la computadora sin arrancar. No tocar." }
   },
   {
     "type": "prefix",
     "value": "/etc",
     "safety": "danger",
-    "en": "System-wide configuration files. Small but critical — don't delete.",
-    "es": "Archivos de configuración de todo el sistema. Chico pero crítico — no lo borres."
+    "group": "system",
+    "en": { "what": "System-wide configuration files for the OS and installed services.", "risk": "Small in size but critical. Deleting config here can break logins, networking or boot. Don't delete." },
+    "es": { "what": "Archivos de configuración de todo el sistema, del SO y de los servicios instalados.", "risk": "Chico en tamaño pero crítico. Borrar config acá puede romper el login, la red o el arranque. No borrar." }
+  },
+  {
+    "type": "prefix",
+    "value": "/bin",
+    "safety": "danger",
+    "group": "system",
+    "en": { "what": "Core command-line programs (ls, cp, bash…). On modern systems it points into /usr/bin.", "risk": "These are essential tools the system needs. Don't delete." },
+    "es": { "what": "Programas básicos de la terminal (ls, cp, bash…). En sistemas modernos apunta a /usr/bin.", "risk": "Son herramientas esenciales que el sistema necesita. No borrar." }
+  },
+  {
+    "type": "prefix",
+    "value": "/sbin",
+    "safety": "danger",
+    "group": "system",
+    "en": { "what": "System administration programs used for boot and maintenance.", "risk": "Essential system tools. Don't delete." },
+    "es": { "what": "Programas de administración del sistema usados en el arranque y mantenimiento.", "risk": "Herramientas esenciales del sistema. No borrar." }
+  },
+  {
+    "type": "prefix",
+    "value": "/lib",
+    "safety": "danger",
+    "group": "system",
+    "en": { "what": "Essential shared libraries needed to boot and run the base system.", "risk": "Removing these breaks the system badly. Don't touch." },
+    "es": { "what": "Librerías compartidas esenciales para arrancar y correr el sistema base.", "risk": "Sacarlas rompe el sistema de forma grave. No tocar." }
+  },
+  {
+    "type": "prefix",
+    "value": "/lib64",
+    "safety": "danger",
+    "group": "system",
+    "en": { "what": "64-bit essential libraries for the base system.", "risk": "Removing these breaks the system. Don't touch." },
+    "es": { "what": "Librerías esenciales de 64 bits del sistema base.", "risk": "Sacarlas rompe el sistema. No tocar." }
   },
   {
     "type": "prefix",
     "value": "/proc",
     "safety": "danger",
-    "en": "A virtual folder the kernel exposes live. It uses no real disk space.",
-    "es": "Carpeta virtual que el kernel muestra en vivo. No ocupa espacio real en disco."
+    "group": "system",
+    "en": { "what": "A live virtual folder the kernel shows about running processes. It isn't real files on disk.", "risk": "Uses no real disk space, so there's nothing to free here. You can't delete it anyway." },
+    "es": { "what": "Una carpeta virtual en vivo que el kernel muestra sobre los procesos en ejecución. No son archivos reales en disco.", "risk": "No ocupa espacio real, así que no hay nada para liberar acá. Igual no se puede borrar." }
   },
   {
     "type": "prefix",
     "value": "/sys",
     "safety": "danger",
-    "en": "A virtual folder for kernel/hardware info. It uses no real disk space.",
-    "es": "Carpeta virtual con info del kernel/hardware. No ocupa espacio real en disco."
+    "group": "system",
+    "en": { "what": "A virtual folder exposing kernel and hardware info live. Not real files on disk.", "risk": "Uses no real disk space. Nothing to free and nothing to delete." },
+    "es": { "what": "Una carpeta virtual que expone info del kernel y hardware en vivo. No son archivos reales en disco.", "risk": "No ocupa espacio real. Nada para liberar ni para borrar." }
   },
   {
     "type": "prefix",
     "value": "/dev",
     "safety": "danger",
-    "en": "Device files (disks, inputs). Virtual — uses no real disk space.",
-    "es": "Archivos de dispositivos (discos, entradas). Virtual — no ocupa espacio real."
+    "group": "system",
+    "en": { "what": "Device files representing your disks, keyboard, etc. Virtual, created by the kernel.", "risk": "Uses no real disk space. Don't touch." },
+    "es": { "what": "Archivos de dispositivos que representan tus discos, teclado, etc. Virtuales, creados por el kernel.", "risk": "No ocupa espacio real. No tocar." }
   },
   {
     "type": "prefix",
     "value": "/run",
     "safety": "danger",
-    "en": "Runtime data living in RAM. Cleared on reboot — leave it alone.",
-    "es": "Datos de ejecución que viven en RAM. Se limpian al reiniciar — no lo toques."
-  },
-  {
-    "type": "prefix",
-    "value": "/var/cache/pacman/pkg",
-    "safety": "caution",
-    "en": "Downloaded package files kept by pacman. Safe to clear with 'paccache -r', frees space but loses the ability to downgrade.",
-    "es": "Paquetes descargados que guarda pacman. Se puede limpiar con 'paccache -r', libera espacio pero perdés poder volver a una versión anterior."
-  },
-  {
-    "type": "prefix",
-    "value": "/var/log",
-    "safety": "caution",
-    "en": "System logs. Can grow large; safe to trim old logs but keep recent ones for troubleshooting.",
-    "es": "Registros del sistema. Pueden crecer mucho; se pueden recortar los viejos, pero dejá los recientes para diagnosticar problemas."
+    "group": "system",
+    "en": { "what": "Runtime data that lives in RAM (sockets, PIDs) while the system is on.", "risk": "Cleared automatically on reboot. Leave it alone — it isn't using disk space." },
+    "es": { "what": "Datos de ejecución que viven en RAM (sockets, PIDs) mientras el sistema está prendido.", "risk": "Se limpia solo al reiniciar. No lo toques — no está usando espacio en disco." }
   },
   {
     "type": "prefix",
     "value": "/var",
     "safety": "caution",
-    "en": "Variable system data: logs, caches, databases. Some parts are cleanable, others aren't — check before deleting.",
-    "es": "Datos variables del sistema: logs, cachés, bases de datos. Algunas partes se pueden limpiar, otras no — revisá antes de borrar."
+    "group": "system",
+    "en": { "what": "Variable system data: logs, caches, databases, mail, package caches.", "risk": "Some parts are safely cleanable (logs, package cache), others hold live data. Open the subfolders and check each before deleting." },
+    "es": { "what": "Datos variables del sistema: logs, cachés, bases de datos, correo, caché de paquetes.", "risk": "Algunas partes se limpian sin riesgo (logs, caché de paquetes), otras tienen datos en vivo. Entrá a las subcarpetas y revisá cada una antes de borrar." }
+  },
+  {
+    "type": "prefix",
+    "value": "/var/lib",
+    "safety": "danger",
+    "group": "system",
+    "en": { "what": "Live data for installed services: databases, Docker images, Flatpak apps, package manager state.", "risk": "This is real application data, not junk. Deleting it can lose databases or break apps. Remove things through their own app instead." },
+    "es": { "what": "Datos en vivo de los servicios instalados: bases de datos, imágenes de Docker, apps de Flatpak, estado del gestor de paquetes.", "risk": "Son datos reales de aplicaciones, no basura. Borrarlo puede perder bases de datos o romper apps. Sacá cosas desde la propia app." }
+  },
+  {
+    "type": "prefix",
+    "value": "/var/log",
+    "safety": "caution",
+    "group": "system",
+    "en": { "what": "System and service logs — records of what happened, useful for diagnosing problems.", "risk": "Can grow large. Safe to trim old logs, but keep recent ones in case you need to troubleshoot.", "tip": "Trim the systemd journal with: journalctl --vacuum-size=200M" },
+    "es": { "what": "Logs del sistema y de los servicios — registros de lo que pasó, útiles para diagnosticar problemas.", "risk": "Pueden crecer mucho. Seguro recortar los viejos, pero dejá los recientes por si necesitás diagnosticar algo.", "tip": "Recortá el journal de systemd con: journalctl --vacuum-size=200M" }
+  },
+  {
+    "type": "prefix",
+    "value": "/var/tmp",
+    "safety": "caution",
+    "group": "cache",
+    "en": { "what": "Temporary files that survive reboots (unlike /tmp). Some programs leave build leftovers here.", "risk": "Usually safe to clear, but a program might be using it right now. Clear when nothing important is running." },
+    "es": { "what": "Archivos temporales que sobreviven al reinicio (a diferencia de /tmp). Algunos programas dejan restos de compilación acá.", "risk": "Normalmente seguro limpiar, pero algún programa puede estar usándolo ahora. Limpiá cuando no haya nada importante corriendo." }
+  },
+  {
+    "type": "prefix",
+    "value": "/var/cache",
+    "safety": "caution",
+    "group": "cache",
+    "en": { "what": "Cached data for system services and your package manager.", "risk": "Mostly regenerable. Safe to clear with the right tool, but don't bulk-delete by hand — use the package manager." },
+    "es": { "what": "Datos en caché de servicios del sistema y de tu gestor de paquetes.", "risk": "Casi todo regenerable. Seguro limpiar con la herramienta correcta, pero no lo borres en bloque a mano — usá el gestor de paquetes." }
+  },
+  {
+    "type": "prefix",
+    "value": "/var/cache/pacman/pkg",
+    "safety": "caution",
+    "group": "cache",
+    "en": { "what": "Package files pacman downloaded when installing or updating (Arch / CachyOS / Manjaro).", "risk": "Safe to clear. You only lose the ability to reinstall or downgrade offline.", "tip": "Keep the last 2 versions: sudo paccache -r" },
+    "es": { "what": "Paquetes que pacman descargó al instalar o actualizar (Arch / CachyOS / Manjaro).", "risk": "Seguro limpiar. Solo perdés poder reinstalar o volver a una versión anterior sin internet.", "tip": "Conservá las últimas 2 versiones: sudo paccache -r" }
+  },
+  {
+    "type": "prefix",
+    "value": "/var/cache/apt/archives",
+    "safety": "caution",
+    "group": "cache",
+    "en": { "what": "Downloaded .deb package files kept by apt (Debian / Ubuntu / Mint).", "risk": "Safe to clear; they just re-download if needed.", "tip": "Clear with: sudo apt clean" },
+    "es": { "what": "Paquetes .deb descargados que guarda apt (Debian / Ubuntu / Mint).", "risk": "Seguro limpiar; se vuelven a descargar si hace falta.", "tip": "Limpiá con: sudo apt clean" }
+  },
+  {
+    "type": "prefix",
+    "value": "/var/cache/dnf",
+    "safety": "caution",
+    "group": "cache",
+    "en": { "what": "Package metadata and downloads cached by dnf (Fedora / RHEL).", "risk": "Safe to clear; dnf rebuilds it on the next update.", "tip": "Clear with: sudo dnf clean all" },
+    "es": { "what": "Metadatos y descargas de paquetes que cachea dnf (Fedora / RHEL).", "risk": "Seguro limpiar; dnf lo reconstruye en la próxima actualización.", "tip": "Limpiá con: sudo dnf clean all" }
+  },
+  {
+    "type": "prefix",
+    "value": "/var/lib/docker",
+    "safety": "caution",
+    "group": "dev",
+    "en": { "what": "Docker images, containers and volumes. Often huge if you use Docker.", "risk": "Don't delete by hand — you'd corrupt Docker. Remove unused data through Docker instead.", "tip": "Free space safely with: docker system prune -a" },
+    "es": { "what": "Imágenes, contenedores y volúmenes de Docker. Suele ser enorme si usás Docker.", "risk": "No lo borres a mano — corromperías Docker. Sacá lo no usado desde Docker.", "tip": "Liberá espacio sin riesgo con: docker system prune -a" }
+  },
+  {
+    "type": "prefix",
+    "value": "/var/lib/flatpak",
+    "safety": "caution",
+    "group": "cache",
+    "en": { "what": "System-wide Flatpak apps and their runtimes.", "risk": "Don't delete by hand. Remove apps and unused runtimes with Flatpak.", "tip": "Free space with: flatpak uninstall --unused" },
+    "es": { "what": "Apps de Flatpak instaladas para todo el sistema y sus runtimes.", "risk": "No lo borres a mano. Sacá apps y runtimes no usados con Flatpak.", "tip": "Liberá espacio con: flatpak uninstall --unused" }
+  },
+  {
+    "type": "prefix",
+    "value": "/var/lib/snapd",
+    "safety": "caution",
+    "group": "cache",
+    "en": { "what": "Snap packages and their data (Ubuntu and others).", "risk": "Don't delete by hand. Remove snaps with the snap command; old revisions can pile up.", "tip": "List and remove old snaps with: snap list --all" },
+    "es": { "what": "Paquetes Snap y sus datos (Ubuntu y otras).", "risk": "No lo borres a mano. Sacá snaps con el comando snap; las revisiones viejas se acumulan.", "tip": "Listá y sacá snaps viejos con: snap list --all" }
   },
   {
     "type": "prefix",
     "value": "/tmp",
     "safety": "safe",
-    "en": "Temporary files, wiped on reboot. Safe to clean.",
-    "es": "Archivos temporales, se borran al reiniciar. Seguro limpiar."
+    "group": "cache",
+    "en": { "what": "Temporary scratch files. On most systems this is wiped automatically on reboot.", "risk": "Safe to clean. A reboot clears it anyway." },
+    "es": { "what": "Archivos temporales de trabajo. En la mayoría de los sistemas se borra solo al reiniciar.", "risk": "Seguro limpiar. Un reinicio lo limpia igual." }
   },
   {
     "type": "prefix",
     "value": "/opt",
     "safety": "caution",
-    "en": "Optional / third-party software installed outside the package manager.",
-    "es": "Software opcional o de terceros instalado fuera del gestor de paquetes."
+    "group": "system",
+    "en": { "what": "Optional or third-party software installed outside the package manager (some games, IDEs, browsers).", "risk": "These are whole installed programs. Deleting a subfolder uninstalls that program — fine if you don't use it, but check first." },
+    "es": { "what": "Software opcional o de terceros instalado fuera del gestor de paquetes (algunos juegos, IDEs, navegadores).", "risk": "Son programas instalados completos. Borrar una subcarpeta desinstala ese programa — está bien si no lo usás, pero fijate primero." }
   },
   {
-    "type": "basename",
-    "value": ".cache",
-    "safety": "safe",
-    "en": "Temporary cache files apps regenerate as needed. Safe to delete to reclaim space.",
-    "es": "Archivos de caché temporales que las apps regeneran solas. Seguro borrar para recuperar espacio."
-  },
-  {
-    "type": "basename",
-    "value": "Trash",
-    "safety": "safe",
-    "en": "Your trash bin. Emptying it permanently frees the space.",
-    "es": "Tu papelera. Vaciarla libera el espacio de forma definitiva."
-  },
-  {
-    "type": "basename",
-    "value": "node_modules",
+    "type": "prefix",
+    "value": "/srv",
     "safety": "caution",
-    "en": "JavaScript project dependencies. Safe to delete for projects you're not using — restore later with 'npm install'.",
-    "es": "Dependencias de un proyecto JavaScript. Seguro borrar en proyectos que no uses — se restauran con 'npm install'."
+    "group": "system",
+    "en": { "what": "Data served by this machine (websites, FTP, network shares), if you run any servers.", "risk": "Usually empty on a desktop. If it has data, it's content you put there — check before deleting." },
+    "es": { "what": "Datos que sirve esta máquina (sitios web, FTP, compartidos de red), si corrés algún servidor.", "risk": "Normalmente vacío en un escritorio. Si tiene datos, es contenido que vos pusiste — revisá antes de borrar." }
   },
   {
-    "type": "basename",
-    "value": "target",
+    "type": "prefix",
+    "value": "/mnt",
     "safety": "caution",
-    "en": "Rust build output. Safe to delete; rebuilds on next 'cargo build'.",
-    "es": "Resultado de compilación de Rust. Seguro borrar; se reconstruye en el próximo 'cargo build'."
+    "group": "system",
+    "en": { "what": "A place where other disks or partitions get mounted (attached) manually.", "risk": "The space shown belongs to another disk mounted here. Delete files only if you mean to change that other disk." },
+    "es": { "what": "Un lugar donde se montan (conectan) otros discos o particiones a mano.", "risk": "El espacio que ves pertenece a otro disco montado acá. Borrá archivos solo si querés cambiar ese otro disco." }
   },
   {
-    "type": "basename",
-    "value": "__pycache__",
-    "safety": "safe",
-    "en": "Python bytecode cache. Safe to delete; regenerated automatically.",
-    "es": "Caché de bytecode de Python. Seguro borrar; se regenera solo."
+    "type": "prefix",
+    "value": "/media",
+    "safety": "caution",
+    "group": "system",
+    "en": { "what": "Where USB drives and external disks get mounted automatically when you plug them in.", "risk": "The contents belong to your removable drives. Deleting here deletes from that USB/disk." },
+    "es": { "what": "Donde se montan automáticamente los pendrives y discos externos al conectarlos.", "risk": "El contenido pertenece a tus unidades extraíbles. Borrar acá borra de ese USB/disco." }
   },
   {
-    "type": "basename",
-    "value": ".git",
+    "type": "prefix",
+    "value": "/home",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "Where every user's personal folder lives. Your documents, downloads, photos and settings are inside your own folder here.", "risk": "This is your personal data. Nothing deletes itself — only remove things you recognize as yours." },
+    "es": { "what": "Donde vive la carpeta personal de cada usuario. Tus documentos, descargas, fotos y configuración están adentro de tu propia carpeta acá.", "risk": "Son tus datos personales. Nada se borra solo — sacá únicamente cosas que reconozcas como tuyas." }
+  },
+  {
+    "type": "prefix",
+    "value": "/root",
     "safety": "danger",
-    "en": "A Git repository's full history. Deleting it loses all version history for that project.",
-    "es": "Toda la historia de un repositorio Git. Borrarlo pierde todo el historial de versiones de ese proyecto."
+    "group": "system",
+    "en": { "what": "The personal folder of the system administrator (root user), separate from your /home folder.", "risk": "Belongs to the root account. Leave it alone unless you really know what's in there." },
+    "es": { "what": "La carpeta personal del administrador del sistema (usuario root), separada de tu carpeta /home.", "risk": "Pertenece a la cuenta root. Dejala salvo que sepas muy bien qué hay adentro." }
   },
   {
     "type": "basename",
-    "value": ".venv",
-    "safety": "caution",
-    "en": "Python virtual environment. Safe to delete; recreate with your project's setup.",
-    "es": "Entorno virtual de Python. Seguro borrar; se recrea con la configuración de tu proyecto."
+    "value": "lost+found",
+    "safety": "danger",
+    "group": "system",
+    "en": { "what": "A special folder where the filesystem recovers pieces of files after a crash or power loss.", "risk": "Managed by the filesystem itself. Leave it — it's part of how the disk repairs itself." },
+    "es": { "what": "Una carpeta especial donde el sistema de archivos recupera pedazos de archivos tras un corte o falla.", "risk": "Lo maneja el propio sistema de archivos. Dejalo — es parte de cómo el disco se repara solo." }
   },
   {
-    "type": "basename",
-    "value": ".rustup",
-    "safety": "caution",
-    "en": "Rust toolchains. Large but needed if you compile Rust. Don't delete unless you removed Rust.",
-    "es": "Toolchains de Rust. Grande pero necesario si compilás Rust. No lo borres salvo que hayas sacado Rust."
+    "type": "exact",
+    "value": "/swapfile",
+    "safety": "danger",
+    "group": "system",
+    "en": { "what": "A file used as extra virtual memory (swap) when your RAM fills up.", "risk": "Deleting it while in use can freeze or crash the system. Resize it properly with swap commands, not by deleting." },
+    "es": { "what": "Un archivo usado como memoria virtual extra (swap) cuando se llena la RAM.", "risk": "Borrarlo mientras se usa puede congelar o tumbar el sistema. Cambiá su tamaño con los comandos de swap, no borrándolo." }
   },
+
   {
-    "type": "basename",
-    "value": ".cargo",
-    "safety": "caution",
-    "en": "Rust package cache and registry. Can be trimmed; rebuilds on demand.",
-    "es": "Caché y registro de paquetes de Rust. Se puede recortar; se reconstruye a demanda."
-  },
-  {
-    "type": "suffix",
-    "value": ".local/share/Steam",
-    "safety": "caution",
-    "en": "Steam games and data. Often the biggest folder — uninstall games from Steam itself to free space safely.",
-    "es": "Juegos y datos de Steam. Suele ser la carpeta más grande — desinstalá juegos desde el propio Steam para liberar espacio sin riesgo."
-  },
-  {
-    "type": "suffix",
-    "value": ".local/share/Trash",
+    "type": "prefix",
+    "value": "~/.cache",
     "safety": "safe",
-    "en": "Your trash bin. Emptying it permanently frees the space.",
-    "es": "Tu papelera. Vaciarla libera el espacio de forma definitiva."
+    "group": "cache",
+    "en": { "what": "Temporary cache files your apps create to run faster (thumbnails, web caches, etc.).", "risk": "Safe to delete to reclaim space. Apps simply rebuild what they need next time they run." },
+    "es": { "what": "Archivos de caché temporales que tus apps crean para ir más rápido (miniaturas, cachés web, etc.).", "risk": "Seguro borrar para recuperar espacio. Las apps reconstruyen lo que necesiten la próxima vez que abran." }
+  },
+  {
+    "type": "prefix",
+    "value": "~/.config",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "Your personal settings for most apps (preferences, accounts, layouts).", "risk": "Small in size. Deleting an app's folder here resets that app to defaults and can log you out — don't delete to save space." },
+    "es": { "what": "Tu configuración personal de la mayoría de las apps (preferencias, cuentas, diseños).", "risk": "Chico en tamaño. Borrar la carpeta de una app acá la deja en valores por defecto y te puede desloguear — no lo borres para ahorrar espacio." }
+  },
+  {
+    "type": "prefix",
+    "value": "~/.local/share",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "Per-user app data: installed Flatpaks, Steam games, notes, app databases.", "risk": "Mixed contents — some is big game data, some is irreplaceable app data. Open subfolders and check before deleting." },
+    "es": { "what": "Datos de apps por usuario: Flatpaks instalados, juegos de Steam, notas, bases de datos de apps.", "risk": "Contenido mezclado — parte es data grande de juegos, parte es data irreemplazable de apps. Entrá a las subcarpetas y revisá antes de borrar." }
+  },
+  {
+    "type": "prefix",
+    "value": "~/.local/state",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "App state between runs: logs, history, recently-used lists.", "risk": "Mostly small and regenerable, but deleting loses history. Low priority for freeing space." },
+    "es": { "what": "Estado de las apps entre usos: logs, historial, listas de usados recientemente.", "risk": "Casi todo chico y regenerable, pero borrarlo pierde historial. Poca prioridad para liberar espacio." }
   },
   {
     "type": "basename",
     "value": ".local",
     "safety": "caution",
-    "en": "Per-user app data and installed user programs. Mixed contents — check subfolders before deleting.",
-    "es": "Datos de apps por usuario y programas instalados para tu usuario. Contenido mezclado — revisá subcarpetas antes de borrar."
+    "group": "home",
+    "en": { "what": "Per-user programs and data installed just for you (not system-wide).", "risk": "Mixed contents — check the subfolders (share, bin, state) before deleting anything." },
+    "es": { "what": "Programas y datos por usuario instalados solo para vos (no para todo el sistema).", "risk": "Contenido mezclado — revisá las subcarpetas (share, bin, state) antes de borrar nada." }
+  },
+  {
+    "type": "suffix",
+    "value": ".local/share/Trash",
+    "safety": "safe",
+    "group": "cache",
+    "en": { "what": "Your trash bin. Files you deleted are kept here until you empty it.", "risk": "Safe to empty. Emptying it permanently frees the space — make sure you don't still need anything inside." },
+    "es": { "what": "Tu papelera. Los archivos que borraste se guardan acá hasta que la vacíes.", "risk": "Seguro vaciar. Vaciarla libera el espacio de forma definitiva — asegurate de no necesitar nada de adentro." }
+  },
+  {
+    "type": "suffix",
+    "value": ".local/share/Steam",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "Steam itself plus all your installed games (the steamapps folder). Usually the biggest folder in home.", "risk": "Deleting by hand loses games and saves. Uninstall games from inside Steam instead — it's safe and frees the same space." },
+    "es": { "what": "El propio Steam más todos tus juegos instalados (la carpeta steamapps). Suele ser la carpeta más grande de tu home.", "risk": "Borrar a mano pierde juegos y partidas. Mejor desinstalá juegos desde el propio Steam — es seguro y libera lo mismo." }
   },
   {
     "type": "basename",
-    "value": ".config",
+    "value": "steamapps",
     "safety": "caution",
-    "en": "Your personal app settings. Small but deleting resets apps to defaults.",
-    "es": "La configuración personal de tus apps. Chico, pero borrarlo deja las apps en valores por defecto."
+    "group": "home",
+    "en": { "what": "Where Steam stores your installed games and downloads.", "risk": "Uninstall games from Steam's library, not by deleting folders here, to avoid breaking Steam." },
+    "es": { "what": "Donde Steam guarda tus juegos instalados y descargas.", "risk": "Desinstalá juegos desde la biblioteca de Steam, no borrando carpetas acá, para no romper Steam." }
+  },
+  {
+    "type": "basename",
+    "value": ".steam",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "Steam runtime files and links to your game library.", "risk": "Don't delete while Steam is set up — manage games from inside Steam." },
+    "es": { "what": "Archivos de ejecución de Steam y enlaces a tu biblioteca de juegos.", "risk": "No lo borres con Steam configurado — manejá los juegos desde el propio Steam." }
+  },
+  {
+    "type": "suffix",
+    "value": ".local/share/lutris",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "Lutris game installs and runners (Wine versions, etc.).", "risk": "Manage games from inside Lutris. Deleting folders by hand can break installed games." },
+    "es": { "what": "Juegos instalados de Lutris y sus runners (versiones de Wine, etc.).", "risk": "Manejá los juegos desde el propio Lutris. Borrar carpetas a mano puede romper juegos instalados." }
+  },
+  {
+    "type": "basename",
+    "value": ".wine",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "A Wine prefix: a fake Windows drive where Windows apps and games are installed.", "risk": "Deleting it removes every Windows app installed in it. Fine if you don't use them — but you lose those installs." },
+    "es": { "what": "Un prefijo de Wine: un disco de Windows falso donde se instalan apps y juegos de Windows.", "risk": "Borrarlo saca todas las apps de Windows instaladas ahí. Está bien si no las usás — pero perdés esas instalaciones." }
+  },
+  {
+    "type": "basename",
+    "value": ".var",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "Per-user data for Flatpak apps (the .var/app folder holds each app's files and caches).", "risk": "Holds real app data and settings, plus caches. Remove apps with Flatpak; you can clear just the cache subfolders safely.", "tip": "Free space with: flatpak uninstall --unused" },
+    "es": { "what": "Datos por usuario de las apps Flatpak (la carpeta .var/app guarda archivos y cachés de cada app).", "risk": "Tiene datos y config reales de las apps, más cachés. Sacá apps con Flatpak; podés limpiar solo las subcarpetas de caché sin riesgo.", "tip": "Liberá espacio con: flatpak uninstall --unused" }
+  },
+  {
+    "type": "basename",
+    "value": "snap",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "Per-user data for your installed Snap apps.", "risk": "Real app data. Remove snaps with the snap command rather than deleting folders here." },
+    "es": { "what": "Datos por usuario de tus apps Snap instaladas.", "risk": "Datos reales de apps. Sacá snaps con el comando snap en vez de borrar carpetas acá." }
+  },
+  {
+    "type": "basename",
+    "value": ".mozilla",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "Firefox profile: bookmarks, history, passwords, extensions.", "risk": "Deleting it loses your Firefox bookmarks and logins. The cache part (in ~/.cache) is the safe thing to clear instead." },
+    "es": { "what": "Perfil de Firefox: marcadores, historial, contraseñas, extensiones.", "risk": "Borrarlo pierde tus marcadores y logins de Firefox. La parte de caché (en ~/.cache) es lo seguro para limpiar en su lugar." }
+  },
+  {
+    "type": "basename",
+    "value": ".thunderbird",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "Thunderbird email profile: your accounts and downloaded mail.", "risk": "Deleting it loses locally-stored email and account setup. Don't delete to save space." },
+    "es": { "what": "Perfil de correo de Thunderbird: tus cuentas y mails descargados.", "risk": "Borrarlo pierde el correo guardado localmente y la configuración de cuentas. No lo borres para ahorrar espacio." }
+  },
+  {
+    "type": "basename",
+    "value": ".ssh",
+    "safety": "danger",
+    "group": "home",
+    "en": { "what": "Your SSH keys and known-hosts — how you log into servers and Git securely.", "risk": "Tiny in size. Deleting it locks you out of servers and removes private keys you may not be able to recover. Never delete to free space." },
+    "es": { "what": "Tus claves SSH y known-hosts — cómo entrás a servidores y a Git de forma segura.", "risk": "Diminuto en tamaño. Borrarlo te deja afuera de servidores y elimina claves privadas que quizá no puedas recuperar. Nunca lo borres para liberar espacio." }
+  },
+  {
+    "type": "basename",
+    "value": ".gnupg",
+    "safety": "danger",
+    "group": "home",
+    "en": { "what": "Your GPG encryption keys for signing and encrypting.", "risk": "Tiny but critical. Deleting it can permanently lose keys and access to encrypted data. Don't delete." },
+    "es": { "what": "Tus claves de cifrado GPG para firmar y encriptar.", "risk": "Diminuto pero crítico. Borrarlo puede perder claves y el acceso a datos cifrados para siempre. No borrar." }
+  },
+  {
+    "type": "basename",
+    "value": ".fonts",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "Extra fonts you installed just for your user.", "risk": "Deleting removes those fonts from your apps. Small; low priority for space." },
+    "es": { "what": "Fuentes extra que instalaste solo para tu usuario.", "risk": "Borrarlo saca esas fuentes de tus apps. Chico; poca prioridad para espacio." }
+  },
+  {
+    "type": "basename",
+    "value": ".themes",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "Custom desktop themes installed for your user.", "risk": "Deleting reverts to default themes. Small; low priority for space." },
+    "es": { "what": "Temas de escritorio personalizados instalados para tu usuario.", "risk": "Borrarlo vuelve a los temas por defecto. Chico; poca prioridad para espacio." }
+  },
+  {
+    "type": "basename",
+    "value": ".icons",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "Custom icon themes installed for your user.", "risk": "Deleting reverts to default icons. Small; low priority for space." },
+    "es": { "what": "Temas de íconos personalizados instalados para tu usuario.", "risk": "Borrarlo vuelve a los íconos por defecto. Chico; poca prioridad para espacio." }
+  },
+  {
+    "type": "basename",
+    "value": "Downloads",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "Where your browser and apps save downloaded files.", "risk": "Your own files. Often safe to clean out old downloads — but look first, you might want to keep some." },
+    "es": { "what": "Donde tu navegador y apps guardan los archivos descargados.", "risk": "Tus propios archivos. Suele ser seguro limpiar descargas viejas — pero mirá primero, capaz querés conservar algunas." }
+  },
+  {
+    "type": "basename",
+    "value": "Documents",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "Your personal documents folder.", "risk": "Your own files — only you know what matters. Nothing here is system junk." },
+    "es": { "what": "Tu carpeta de documentos personales.", "risk": "Tus propios archivos — solo vos sabés qué importa. Nada acá es basura del sistema." }
+  },
+  {
+    "type": "basename",
+    "value": "Pictures",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "Your personal pictures and screenshots folder.", "risk": "Your own files. Review before deleting — these are usually irreplaceable." },
+    "es": { "what": "Tu carpeta de imágenes y capturas personales.", "risk": "Tus propios archivos. Revisá antes de borrar — suelen ser irreemplazables." }
+  },
+  {
+    "type": "basename",
+    "value": "Videos",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "Your personal videos folder. Often large.", "risk": "Your own files. Frequently the biggest space user in home — but only you know which to keep." },
+    "es": { "what": "Tu carpeta de videos personales. Suele ser grande.", "risk": "Tus propios archivos. A menudo lo que más espacio usa en tu home — pero solo vos sabés cuáles conservar." }
+  },
+  {
+    "type": "basename",
+    "value": "Music",
+    "safety": "caution",
+    "group": "home",
+    "en": { "what": "Your personal music folder.", "risk": "Your own files. Review before deleting." },
+    "es": { "what": "Tu carpeta de música personal.", "risk": "Tus propios archivos. Revisá antes de borrar." }
+  },
+
+  {
+    "type": "basename",
+    "value": "node_modules",
+    "safety": "caution",
+    "group": "dev",
+    "en": { "what": "Downloaded dependencies for a JavaScript/Node project. Can get very large.", "risk": "Safe to delete for projects you're not actively using. Restore anytime with 'npm install' inside the project.", "tip": "Inside the project run: npm install" },
+    "es": { "what": "Dependencias descargadas de un proyecto JavaScript/Node. Puede ponerse muy grande.", "risk": "Seguro borrar en proyectos que no estés usando. Se restaura cuando quieras con 'npm install' dentro del proyecto.", "tip": "Dentro del proyecto corré: npm install" }
+  },
+  {
+    "type": "basename",
+    "value": "target",
+    "safety": "caution",
+    "group": "dev",
+    "en": { "what": "Build output of a Rust project (compiled files). Often large.", "risk": "Safe to delete. It rebuilds automatically on the next 'cargo build'.", "tip": "Inside the project run: cargo clean" },
+    "es": { "what": "Resultado de compilación de un proyecto Rust (archivos compilados). Suele ser grande.", "risk": "Seguro borrar. Se reconstruye solo en el próximo 'cargo build'.", "tip": "Dentro del proyecto corré: cargo clean" }
+  },
+  {
+    "type": "basename",
+    "value": "__pycache__",
+    "safety": "safe",
+    "group": "dev",
+    "en": { "what": "Python bytecode cache that speeds up imports.", "risk": "Safe to delete; Python regenerates it automatically." },
+    "es": { "what": "Caché de bytecode de Python que acelera los imports.", "risk": "Seguro borrar; Python lo regenera solo." }
+  },
+  {
+    "type": "basename",
+    "value": ".venv",
+    "safety": "caution",
+    "group": "dev",
+    "en": { "what": "A Python virtual environment with a project's installed packages.", "risk": "Safe to delete; recreate it with your project's setup (e.g. python -m venv). You lose nothing but install time." },
+    "es": { "what": "Un entorno virtual de Python con los paquetes instalados de un proyecto.", "risk": "Seguro borrar; se recrea con la configuración del proyecto (ej. python -m venv). Solo perdés el tiempo de instalación." }
+  },
+  {
+    "type": "basename",
+    "value": "venv",
+    "safety": "caution",
+    "group": "dev",
+    "en": { "what": "A Python virtual environment with a project's installed packages.", "risk": "Safe to delete; recreate it with python -m venv when you need the project again." },
+    "es": { "what": "Un entorno virtual de Python con los paquetes instalados de un proyecto.", "risk": "Seguro borrar; se recrea con python -m venv cuando vuelvas a necesitar el proyecto." }
+  },
+  {
+    "type": "basename",
+    "value": ".git",
+    "safety": "danger",
+    "group": "dev",
+    "en": { "what": "The full history of a Git project — every commit and branch.", "risk": "Deleting it turns the project into plain files and loses all version history that isn't pushed elsewhere. Don't delete to save space." },
+    "es": { "what": "Toda la historia de un proyecto Git — cada commit y rama.", "risk": "Borrarlo convierte el proyecto en archivos sueltos y pierde todo el historial que no esté subido a otro lado. No lo borres para ahorrar espacio." }
+  },
+  {
+    "type": "basename",
+    "value": ".gradle",
+    "safety": "caution",
+    "group": "dev",
+    "en": { "what": "Gradle build cache and downloaded dependencies (Java/Android/Kotlin).", "risk": "Safe to delete; it re-downloads and rebuilds on the next build. Just costs time." },
+    "es": { "what": "Caché de compilación y dependencias descargadas de Gradle (Java/Android/Kotlin).", "risk": "Seguro borrar; se vuelve a descargar y reconstruir en la próxima compilación. Solo cuesta tiempo." }
+  },
+  {
+    "type": "basename",
+    "value": ".m2",
+    "safety": "caution",
+    "group": "dev",
+    "en": { "what": "Maven's local repository of downloaded Java libraries.", "risk": "Safe to delete; Maven re-downloads what your projects need. Just costs time and bandwidth." },
+    "es": { "what": "El repositorio local de Maven con librerías de Java descargadas.", "risk": "Seguro borrar; Maven vuelve a descargar lo que tus proyectos necesiten. Solo cuesta tiempo y datos." }
+  },
+  {
+    "type": "basename",
+    "value": ".cargo",
+    "safety": "caution",
+    "group": "dev",
+    "en": { "what": "Rust's package cache and downloaded crate registry.", "risk": "Safe to trim; it rebuilds on demand. Don't delete if you're mid-project and offline." },
+    "es": { "what": "La caché de paquetes de Rust y el registro de crates descargados.", "risk": "Seguro recortar; se reconstruye a demanda. No lo borres si estás en medio de un proyecto y sin internet." }
+  },
+  {
+    "type": "basename",
+    "value": ".rustup",
+    "safety": "caution",
+    "group": "dev",
+    "en": { "what": "Installed Rust toolchains (the compiler and tools). Can be large.", "risk": "Needed if you compile Rust. Don't delete unless you've removed Rust; otherwise builds stop working." },
+    "es": { "what": "Toolchains de Rust instaladas (el compilador y herramientas). Puede ser grande.", "risk": "Necesario si compilás Rust. No lo borres salvo que hayas sacado Rust; si no, las compilaciones dejan de andar." }
+  },
+  {
+    "type": "basename",
+    "value": ".npm",
+    "safety": "safe",
+    "group": "dev",
+    "en": { "what": "npm's download cache for JavaScript packages.", "risk": "Safe to clear; npm re-downloads as needed.", "tip": "Clear with: npm cache clean --force" },
+    "es": { "what": "La caché de descargas de npm para paquetes JavaScript.", "risk": "Seguro limpiar; npm vuelve a descargar lo que haga falta.", "tip": "Limpiá con: npm cache clean --force" }
+  },
+  {
+    "type": "basename",
+    "value": ".next",
+    "safety": "safe",
+    "group": "dev",
+    "en": { "what": "Build output of a Next.js web project.", "risk": "Safe to delete; rebuilds on the next 'next build' or 'next dev'." },
+    "es": { "what": "Resultado de compilación de un proyecto web Next.js.", "risk": "Seguro borrar; se reconstruye en el próximo 'next build' o 'next dev'." }
+  },
+  {
+    "type": "basename",
+    "value": "dist",
+    "safety": "caution",
+    "group": "dev",
+    "en": { "what": "Build output folder many projects generate (bundled/compiled files).", "risk": "Usually safe to delete for code projects — it regenerates on build. But some folders named 'dist' hold real content, so confirm it's a build folder." },
+    "es": { "what": "Carpeta de salida de compilación que generan muchos proyectos (archivos empaquetados/compilados).", "risk": "Normalmente seguro borrar en proyectos de código — se regenera al compilar. Pero algunas carpetas 'dist' tienen contenido real, así que confirmá que sea de build." }
+  },
+  {
+    "type": "basename",
+    "value": ".cache",
+    "safety": "safe",
+    "group": "cache",
+    "en": { "what": "A cache folder apps regenerate as needed.", "risk": "Generally safe to delete to reclaim space; apps rebuild what they need." },
+    "es": { "what": "Una carpeta de caché que las apps regeneran cuando hace falta.", "risk": "Generalmente seguro borrar para recuperar espacio; las apps reconstruyen lo que necesiten." }
+  },
+  {
+    "type": "basename",
+    "value": "Trash",
+    "safety": "safe",
+    "group": "cache",
+    "en": { "what": "A trash bin folder. Holds files you deleted until emptied.", "risk": "Safe to empty; it permanently frees the space inside." },
+    "es": { "what": "Una carpeta de papelera. Guarda archivos que borraste hasta que la vacíes.", "risk": "Seguro vaciar; libera de forma definitiva el espacio de adentro." }
+  },
+  {
+    "type": "basename",
+    "value": ".thumbnails",
+    "safety": "safe",
+    "group": "cache",
+    "en": { "what": "Cached image thumbnails for your file manager.", "risk": "Safe to delete; regenerated on demand when you browse folders." },
+    "es": { "what": "Miniaturas de imágenes en caché para tu gestor de archivos.", "risk": "Seguro borrar; se regeneran a demanda cuando navegás carpetas." }
   }
 ]

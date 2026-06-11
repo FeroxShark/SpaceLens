@@ -22,6 +22,8 @@ pub struct Node {
     pub size: u64,
     pub is_dir: bool,
     pub denied: bool,
+    /// Last modification, unix seconds (0 when unknown).
+    pub mtime: i64,
     pub children: Vec<usize>,
 }
 
@@ -74,6 +76,7 @@ struct Temp {
     size: u64,
     is_dir: bool,
     denied: bool,
+    mtime: i64,
     children: Vec<Temp>,
 }
 
@@ -82,6 +85,41 @@ struct Ctx {
     seen_inodes: DashMap<(u64, u64), ()>,
     root_dev: u64,
     one_filesystem: bool,
+    /// Mount points of pseudo/virtual filesystems (proc, sysfs, tmpfs…).
+    /// Never descended into: they aren't disk space, and /proc/kcore even
+    /// reports a bogus 128 TiB size.
+    pseudo_mounts: std::collections::HashSet<PathBuf>,
+}
+
+/// Filesystem types that don't live on disk (or would double-count it).
+const PSEUDO_FS: &[&str] = &[
+    "proc", "sysfs", "devtmpfs", "devpts", "tmpfs", "ramfs", "cgroup", "cgroup2",
+    "bpf", "debugfs", "tracefs", "securityfs", "pstore", "efivarfs", "configfs",
+    "fusectl", "mqueue", "hugetlbfs", "binfmt_misc", "autofs", "overlay",
+    "fuse.gvfsd-fuse", "fuse.portal", "nsfs", "rpc_pipefs",
+];
+
+/// Parse /proc/mounts content into the set of pseudo-filesystem mount points.
+fn parse_pseudo_mounts(contents: &str) -> std::collections::HashSet<PathBuf> {
+    let mut out = std::collections::HashSet::new();
+    for line in contents.lines() {
+        let mut parts = line.split_whitespace();
+        let _dev = parts.next();
+        let (Some(mount), Some(fstype)) = (parts.next(), parts.next()) else {
+            continue;
+        };
+        if PSEUDO_FS.contains(&fstype) {
+            // /proc/mounts escapes spaces as \040.
+            out.insert(PathBuf::from(mount.replace("\\040", " ")));
+        }
+    }
+    out
+}
+
+fn pseudo_mounts() -> std::collections::HashSet<PathBuf> {
+    std::fs::read_to_string("/proc/mounts")
+        .map(|c| parse_pseudo_mounts(&c))
+        .unwrap_or_default()
 }
 
 /// Scan `root`, returning the arena tree. Honors cancellation; a cancelled scan
@@ -98,6 +136,7 @@ pub fn scan(root: &Path, progress: Arc<Progress>, one_filesystem: bool) -> ScanR
         seen_inodes: DashMap::new(),
         root_dev,
         one_filesystem,
+        pseudo_mounts: pseudo_mounts(),
     };
 
     let root_name = root
@@ -106,16 +145,20 @@ pub fn scan(root: &Path, progress: Arc<Progress>, one_filesystem: bool) -> ScanR
         .unwrap_or_else(|| root.to_string_lossy().into_owned());
 
     let temp = match root_meta {
-        Ok(m) if m.is_dir() => walk_dir(root, &ctx, root_name),
+        Ok(m) if m.is_dir() => {
+            let mtime = mtime_secs(&m);
+            walk_dir(root, &ctx, root_name, mtime)
+        }
         Ok(m) => {
             let size = file_size(&m);
-            Temp { name: root_name, size, is_dir: false, denied: false, children: Vec::new() }
+            Temp { name: root_name, size, is_dir: false, denied: false, mtime: mtime_secs(&m), children: Vec::new() }
         }
         Err(_) => Temp {
             name: root_name,
             size: 0,
             is_dir: true,
             denied: true,
+            mtime: 0,
             children: Vec::new(),
         },
     };
@@ -135,9 +178,17 @@ fn file_size(m: &std::fs::Metadata) -> u64 {
     m.len()
 }
 
-fn walk_dir(dir: &Path, ctx: &Ctx, name: String) -> Temp {
+fn mtime_secs(m: &std::fs::Metadata) -> i64 {
+    m.modified()
+        .ok()
+        .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+        .map(|d| d.as_secs() as i64)
+        .unwrap_or(0)
+}
+
+fn walk_dir(dir: &Path, ctx: &Ctx, name: String, mtime: i64) -> Temp {
     if ctx.progress.cancel.load(Ordering::Relaxed) {
-        return Temp { name, size: 0, is_dir: true, denied: false, children: Vec::new() };
+        return Temp { name, size: 0, is_dir: true, denied: false, mtime, children: Vec::new() };
     }
 
     if let Ok(mut cur) = ctx.progress.current.lock() {
@@ -147,7 +198,7 @@ fn walk_dir(dir: &Path, ctx: &Ctx, name: String) -> Temp {
     let read = match std::fs::read_dir(dir) {
         Ok(rd) => rd,
         Err(_) => {
-            return Temp { name, size: 0, is_dir: true, denied: true, children: Vec::new() };
+            return Temp { name, size: 0, is_dir: true, denied: true, mtime, children: Vec::new() };
         }
     };
 
@@ -160,7 +211,7 @@ fn walk_dir(dir: &Path, ctx: &Ctx, name: String) -> Temp {
         .collect();
 
     let size = children.iter().map(|c| c.size).sum();
-    Temp { name, size, is_dir: true, denied: false, children }
+    Temp { name, size, is_dir: true, denied: false, mtime, children }
 }
 
 fn process_entry(path: &Path, ctx: &Ctx) -> Option<Temp> {
@@ -179,13 +230,19 @@ fn process_entry(path: &Path, ctx: &Ctx) -> Option<Temp> {
         .map(|n| n.to_string_lossy().into_owned())
         .unwrap_or_default();
 
+    let mtime = mtime_secs(&meta);
+
     if meta.is_dir() {
+        // Virtual filesystems are never disk space — skip them entirely.
+        if ctx.pseudo_mounts.contains(path) {
+            return None;
+        }
         #[cfg(unix)]
         if ctx.one_filesystem && meta.dev() != ctx.root_dev {
             // Different filesystem (mountpoint) -> don't descend.
-            return Some(Temp { name, size: 0, is_dir: true, denied: false, children: Vec::new() });
+            return Some(Temp { name, size: 0, is_dir: true, denied: false, mtime, children: Vec::new() });
         }
-        Some(walk_dir(path, ctx, name))
+        Some(walk_dir(path, ctx, name, mtime))
     } else {
         // Hardlink dedup: count multiply-linked inodes only once.
         #[cfg(unix)]
@@ -200,7 +257,7 @@ fn process_entry(path: &Path, ctx: &Ctx) -> Option<Temp> {
         let size = file_size(&meta);
         ctx.progress.files.fetch_add(1, Ordering::Relaxed);
         ctx.progress.bytes.fetch_add(size, Ordering::Relaxed);
-        Some(Temp { name, size, is_dir: false, denied: false, children: Vec::new() })
+        Some(Temp { name, size, is_dir: false, denied: false, mtime, children: Vec::new() })
     }
 }
 
@@ -213,6 +270,7 @@ fn flatten(temp: Temp, parent: Option<usize>, nodes: &mut Vec<Node>) {
         size: temp.size,
         is_dir: temp.is_dir,
         denied: temp.denied,
+        mtime: temp.mtime,
         children: Vec::new(),
     });
     // Sort children by size desc so downstream views get a stable order.
@@ -237,6 +295,7 @@ pub struct TreeDto {
     pub size: u64,
     pub is_dir: bool,
     pub denied: bool,
+    pub mtime: i64,
     pub children: Vec<TreeDto>,
     /// True when this synthetic node aggregates many small siblings.
     #[serde(skip_serializing_if = "std::ops::Not::not")]
@@ -251,12 +310,23 @@ pub struct ChildDto {
     pub size: u64,
     pub is_dir: bool,
     pub denied: bool,
+    pub mtime: i64,
 }
 
 #[derive(Serialize)]
 pub struct TopFileDto {
     pub path: String,
     pub size: u64,
+}
+
+#[derive(Serialize)]
+pub struct DupGroup {
+    /// Size of each copy in bytes.
+    pub size: u64,
+    pub count: usize,
+    /// Bytes you'd reclaim by keeping a single copy.
+    pub wasted: u64,
+    pub paths: Vec<String>,
 }
 
 impl ScanResult {
@@ -295,6 +365,7 @@ impl ScanResult {
                     size: other_size,
                     is_dir: true,
                     denied: false,
+                    mtime: 0,
                     children: Vec::new(),
                     is_other: true,
                 });
@@ -307,6 +378,7 @@ impl ScanResult {
             size: node.size,
             is_dir: node.is_dir,
             denied: node.denied,
+            mtime: node.mtime,
             children,
             is_other: false,
         }
@@ -329,6 +401,7 @@ impl ScanResult {
                     size: n.size,
                     is_dir: n.is_dir,
                     denied: n.denied,
+                    mtime: n.mtime,
                 }
             })
             .collect()
@@ -352,6 +425,91 @@ impl ScanResult {
                 size,
             })
             .collect()
+    }
+
+    /// Find groups of identical files (same size and same blake3 content
+    /// hash) at least `min_size` bytes each. Cheap pre-filters first: group
+    /// by size, then by a hash of the first 256 KiB, then by full hash.
+    /// Returns up to `max_groups` groups, biggest reclaimable space first.
+    pub fn duplicate_groups(&self, min_size: u64, max_groups: usize) -> Vec<DupGroup> {
+        use std::collections::HashMap;
+        use std::io::Read;
+
+        // 1. Candidate files bucketed by size.
+        let mut by_size: HashMap<u64, Vec<usize>> = HashMap::new();
+        for (i, node) in self.nodes.iter().enumerate() {
+            if !node.is_dir && node.size >= min_size {
+                by_size.entry(node.size).or_default().push(i);
+            }
+        }
+        let candidates: Vec<(u64, Vec<usize>)> =
+            by_size.into_iter().filter(|(_, ids)| ids.len() > 1).collect();
+
+        fn hash_file(path: &Path, limit: Option<u64>) -> Option<[u8; 32]> {
+            let f = std::fs::File::open(path).ok()?;
+            let mut hasher = blake3::Hasher::new();
+            let mut reader: Box<dyn Read> = match limit {
+                Some(l) => Box::new(f.take(l)),
+                None => Box::new(f),
+            };
+            let mut buf = [0u8; 64 * 1024];
+            loop {
+                let n = reader.read(&mut buf).ok()?;
+                if n == 0 {
+                    break;
+                }
+                hasher.update(&buf[..n]);
+            }
+            Some(*hasher.finalize().as_bytes())
+        }
+
+        const PARTIAL: u64 = 256 * 1024;
+
+        // 2. Within each size bucket, split by partial then full hash.
+        let groups: Vec<DupGroup> = candidates
+            .par_iter()
+            .flat_map(|(size, ids)| {
+                let mut by_partial: HashMap<[u8; 32], Vec<usize>> = HashMap::new();
+                for &id in ids {
+                    let path = self.path_of(id);
+                    if let Some(h) = hash_file(&path, Some(PARTIAL)) {
+                        by_partial.entry(h).or_default().push(id);
+                    }
+                }
+                let mut out = Vec::new();
+                for (_, ids) in by_partial.into_iter().filter(|(_, v)| v.len() > 1) {
+                    // Small files are fully covered by the partial hash.
+                    let mut by_full: HashMap<[u8; 32], Vec<usize>> = HashMap::new();
+                    if *size <= PARTIAL {
+                        by_full.insert([0u8; 32], ids);
+                    } else {
+                        for id in ids {
+                            let path = self.path_of(id);
+                            if let Some(h) = hash_file(&path, None) {
+                                by_full.entry(h).or_default().push(id);
+                            }
+                        }
+                    }
+                    for (_, dup_ids) in by_full.into_iter().filter(|(_, v)| v.len() > 1) {
+                        out.push(DupGroup {
+                            size: *size,
+                            count: dup_ids.len(),
+                            wasted: size * (dup_ids.len() as u64 - 1),
+                            paths: dup_ids
+                                .iter()
+                                .map(|&id| self.path_of(id).to_string_lossy().into_owned())
+                                .collect(),
+                        });
+                    }
+                }
+                out
+            })
+            .collect();
+
+        let mut groups = groups;
+        groups.sort_unstable_by(|a, b| b.wasted.cmp(&a.wasted));
+        groups.truncate(max_groups);
+        groups
     }
 }
 
@@ -402,6 +560,60 @@ mod tests {
         assert_eq!(kids[0].name, "sub");
         assert_eq!(kids[0].size, 2500);
         assert!(kids[0].is_dir);
+
+        fs::remove_dir_all(&root).unwrap();
+    }
+
+    #[test]
+    fn pseudo_mounts_parsed_from_proc_mounts() {
+        let sample = "\
+proc /proc proc rw 0 0
+sysfs /sys sysfs rw 0 0
+/dev/nvme0n1p2 / btrfs rw,subvol=/@ 0 0
+/dev/nvme0n1p2 /home btrfs rw,subvol=/@home 0 0
+tmpfs /tmp tmpfs rw 0 0
+tmpfs /run tmpfs rw 0 0
+/dev/sda1 /mnt/backup-usb ext4 rw 0 0
+overlay /var/lib/docker/overlay2/abc/merged overlay rw 0 0
+";
+        let set = parse_pseudo_mounts(sample);
+        assert!(set.contains(&PathBuf::from("/proc")));
+        assert!(set.contains(&PathBuf::from("/sys")));
+        assert!(set.contains(&PathBuf::from("/tmp")));
+        assert!(set.contains(&PathBuf::from("/run")));
+        assert!(set.contains(&PathBuf::from("/var/lib/docker/overlay2/abc/merged")));
+        // Real disk filesystems must NOT be excluded.
+        assert!(!set.contains(&PathBuf::from("/")));
+        assert!(!set.contains(&PathBuf::from("/home")));
+        assert!(!set.contains(&PathBuf::from("/mnt/backup-usb")));
+    }
+
+    #[test]
+    fn finds_duplicate_files() {
+        let root = temp_root();
+        // Two identical files, one same-size-but-different, one unique.
+        let mut a = fs::File::create(root.join("a.dat")).unwrap();
+        a.write_all(&[7u8; 4096]).unwrap();
+        let mut b = fs::File::create(root.join("b.dat")).unwrap();
+        b.write_all(&[7u8; 4096]).unwrap();
+        let mut c = fs::File::create(root.join("c.dat")).unwrap();
+        c.write_all(&[9u8; 4096]).unwrap();
+        write_file(&root.join("d.dat"), 100);
+
+        let result = scan(&root, Arc::new(Progress::new()), true);
+        let groups = result.duplicate_groups(1, 10);
+
+        assert_eq!(groups.len(), 1);
+        assert_eq!(groups[0].count, 2);
+        assert_eq!(groups[0].size, 4096);
+        assert_eq!(groups[0].wasted, 4096);
+        let mut names: Vec<String> = groups[0]
+            .paths
+            .iter()
+            .map(|p| p.rsplit('/').next().unwrap().to_string())
+            .collect();
+        names.sort();
+        assert_eq!(names, vec!["a.dat", "b.dat"]);
 
         fs::remove_dir_all(&root).unwrap();
     }

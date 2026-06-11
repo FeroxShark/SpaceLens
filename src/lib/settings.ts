@@ -17,7 +17,10 @@ const DEFAULTS: Settings = {
   lang: "en",
   langChosen: false,
   deleteMode: "trash",
-  oneFilesystem: true,
+  // Off by default: on btrfs (Arch/CachyOS) subvolumes like /home count as
+  // separate filesystems, so "stay on one" makes a scan of / miss most data.
+  // Pseudo-filesystems (/proc, /sys…) are always excluded by the scanner.
+  oneFilesystem: false,
 };
 
 let store: Store | null = null;

@@ -16,6 +16,7 @@
   --danger-bg: rgba(255, 92, 122, 0.12);
   --safe: #5fd08a;
   --caution: #f2c14e;
+  --unknown: #8a8f98;
 
   color-scheme: dark;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;

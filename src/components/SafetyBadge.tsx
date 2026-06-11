@@ -5,6 +5,7 @@ const ICON: Record<Safety, string> = {
   safe: "🟢",
   caution: "🟡",
   danger: "🔴",
+  unknown: "❔",
 };
 
 export function SafetyBadge({ safety }: { safety: Safety }) {

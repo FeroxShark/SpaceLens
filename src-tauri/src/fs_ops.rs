@@ -103,6 +103,8 @@ pub fn cleanup_suggestions() -> Vec<CleanupItem> {
     let mut candidates: Vec<(&str, PathBuf, &str)> = Vec::new();
 
     candidates.push(("pacman_cache", PathBuf::from("/var/cache/pacman/pkg"), "caution"));
+    candidates.push(("apt_cache", PathBuf::from("/var/cache/apt/archives"), "caution"));
+    candidates.push(("dnf_cache", PathBuf::from("/var/cache/dnf"), "caution"));
     candidates.push(("journal_logs", PathBuf::from("/var/log/journal"), "caution"));
 
     if let Some(h) = &h {

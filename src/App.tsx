@@ -10,18 +10,23 @@ import {
   cancelScan,
   onScanProgress,
   onScanComplete,
+  getSystemInfo,
+  listDisks,
   type ScanProgress as TProgress,
+  type SystemInfo,
   type TreeNode,
 } from "./lib/api";
 import { DisksOverview } from "./views/DisksOverview";
 import { TreemapView } from "./views/TreemapView";
 import { TopFiles } from "./views/TopFiles";
 import { Cleanup } from "./views/Cleanup";
+import { DuplicatesView } from "./views/DuplicatesView";
+import { GuideView } from "./views/GuideView";
 import { Settings } from "./views/Settings";
 import { ScanProgress } from "./components/ScanProgress";
 import { LanguageModal } from "./components/LanguageModal";
 
-type View = "disks" | "treemap" | "topfiles" | "cleanup" | "settings";
+type View = "disks" | "treemap" | "topfiles" | "dup" | "cleanup" | "guide" | "settings";
 type ScanStatus = "idle" | "scanning" | "done";
 
 export function App({ settings: initialSettings }: { settings: TSettings }) {
@@ -33,10 +38,18 @@ export function App({ settings: initialSettings }: { settings: TSettings }) {
   const [progress, setProgress] = useState<TProgress>({ files: 0, bytes: 0, current: "" });
   const [scanRoot, setScanRoot] = useState<TreeNode | null>(null);
   const [lastPath, setLastPath] = useState<string>("");
+  const [system, setSystem] = useState<SystemInfo | null>(null);
+  const [freeBytes, setFreeBytes] = useState(0);
+  const [diskUsed, setDiskUsed] = useState(0);
 
   const update = useCallback(async (partial: Partial<TSettings>) => {
     setSettings((s) => ({ ...s, ...partial }));
     await saveSettings(partial);
+  }, []);
+
+  // Detect the distribution once, for the guide and `~` rule expansion.
+  useEffect(() => {
+    getSystemInfo().then(setSystem).catch(() => setSystem(null));
   }, []);
 
   // Wire scan events once.
@@ -60,6 +73,18 @@ export function App({ settings: initialSettings }: { settings: TSettings }) {
       setLastPath(path);
       setProgress({ files: 0, bytes: 0, current: "" });
       setStatus("scanning");
+      // Free space for the "show free" toggle: only meaningful when the
+      // scanned path is a disk's mount point.
+      listDisks()
+        .then((disks) => {
+          const d = disks.find((d) => d.mount_point === path);
+          setFreeBytes(d?.available ?? 0);
+          setDiskUsed(d?.used ?? 0);
+        })
+        .catch(() => {
+          setFreeBytes(0);
+          setDiskUsed(0);
+        });
       startScan(path, settings.oneFilesystem);
     },
     [settings.oneFilesystem],
@@ -71,7 +96,9 @@ export function App({ settings: initialSettings }: { settings: TSettings }) {
     { id: "disks", label: t("tab.disks") },
     { id: "treemap", label: t("tab.treemap") },
     { id: "topfiles", label: t("tab.topfiles") },
+    { id: "dup", label: t("tab.dup") },
     { id: "cleanup", label: t("tab.cleanup") },
+    { id: "guide", label: t("tab.guide") },
   ];
 
   return (
@@ -110,6 +137,9 @@ export function App({ settings: initialSettings }: { settings: TSettings }) {
             <TreemapView
               root={scanRoot!}
               deleteMode={settings.deleteMode}
+              homeDir={system?.home}
+              freeBytes={freeBytes}
+              diskUsed={diskUsed}
               onRescan={() => beginScan(lastPath)}
             />
           ) : (
@@ -118,7 +148,17 @@ export function App({ settings: initialSettings }: { settings: TSettings }) {
 
         {view === "topfiles" && <TopFiles scanReady={scanReady} />}
 
+        {view === "dup" && (
+          <DuplicatesView
+            scanReady={scanReady}
+            deleteMode={settings.deleteMode}
+            homeDir={system?.home}
+          />
+        )}
+
         {view === "cleanup" && <Cleanup deleteMode={settings.deleteMode} />}
+
+        {view === "guide" && <GuideView system={system} />}
 
         {view === "settings" && <Settings settings={settings} onChange={update} />}
       </main>

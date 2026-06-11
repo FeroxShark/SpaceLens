@@ -1,0 +1,52 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1a1426"/>
+      <stop offset="1" stop-color="#0e0c12"/>
+    </linearGradient>
+    <linearGradient id="c1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b06cff"/>
+      <stop offset="1" stop-color="#8a4fe0"/>
+    </linearGradient>
+    <linearGradient id="c2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7f4ad6"/>
+      <stop offset="1" stop-color="#6336b3"/>
+    </linearGradient>
+    <linearGradient id="c3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5b4a8a"/>
+      <stop offset="1" stop-color="#473a6e"/>
+    </linearGradient>
+    <linearGradient id="c4" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#917cd6"/>
+      <stop offset="1" stop-color="#6f5bb8"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="18" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- rounded background -->
+  <rect x="32" y="32" width="960" height="960" rx="210" fill="url(#bg)"/>
+  <rect x="32" y="32" width="960" height="960" rx="210" fill="none" stroke="#b06cff" stroke-opacity="0.25" stroke-width="8"/>
+
+  <!-- treemap blocks -->
+  <g filter="url(#glow)">
+    <rect x="150" y="150" width="430" height="430" rx="36" fill="url(#c1)"/>
+    <rect x="608" y="150" width="266" height="262" rx="32" fill="url(#c2)"/>
+    <rect x="608" y="440" width="266" height="140" rx="28" fill="url(#c4)"/>
+    <rect x="150" y="608" width="262" height="266" rx="32" fill="url(#c2)"/>
+    <rect x="440" y="608" width="208" height="266" rx="28" fill="url(#c3)"/>
+    <rect x="676" y="608" width="198" height="152" rx="26" fill="url(#c4)"/>
+    <rect x="676" y="788" width="198" height="86" rx="22" fill="url(#c3)"/>
+  </g>
+
+  <!-- lens: circle + handle over the big block -->
+  <g stroke="#ffffff" stroke-opacity="0.92" fill="none" stroke-linecap="round">
+    <circle cx="345" cy="345" r="118" stroke-width="34"/>
+    <line x1="432" y1="432" x2="520" y2="520" stroke-width="40"/>
+  </g>
+</svg>

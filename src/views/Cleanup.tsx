@@ -8,6 +8,7 @@ import {
 } from "../lib/api";
 import { formatBytes } from "../lib/format";
 import { useI18n } from "../lib/i18n";
+import { SafetyBadge } from "../components/SafetyBadge";
 import type { DeleteMode } from "../lib/settings";
 
 export function Cleanup({ deleteMode }: { deleteMode: DeleteMode }) {
@@ -69,6 +70,17 @@ export function Cleanup({ deleteMode }: { deleteMode: DeleteMode }) {
         </button>
       </div>
       <p className="muted intro">{t("cleanup.intro")}</p>
+
+      <div className="guide-legend">
+        <div className="leg-row">
+          <SafetyBadge safety="safe" />
+          <span>{t("cleanup.legend.safe")}</span>
+        </div>
+        <div className="leg-row">
+          <SafetyBadge safety="caution" />
+          <span>{t("cleanup.legend.caution")}</span>
+        </div>
+      </div>
 
       {errors && (
         <div className="del-errors inline">

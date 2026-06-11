@@ -16,9 +16,17 @@ tiny binary, native window.
 
 - **Interactive treemap** — nested colored blocks sized by how much space each
   folder uses. Click to zoom in, breadcrumb to go back.
-- **Beginner-friendly explanations** — hover or right-click a system folder
-  (`/usr`, `~/.cache`, `node_modules`, …) and SpaceLens tells you what it is and
-  whether it's 🟢 safe to delete, 🟡 delete with care, or 🔴 don't touch.
+- **Beginner-friendly explanations** — hover or right-click any folder and
+  SpaceLens tells you *what it is*, the *risk of deleting it*, and a *tip* to
+  free space safely. Safety is graded 🟢 safe / 🟡 with care / 🔴 don't touch.
+  When it can't identify something it says so honestly (❔) instead of guessing —
+  inferring what it can from the location, name, or file type and warning you
+  before you delete.
+- **Folder Guide tab** — a searchable reference of the whole Linux filesystem
+  (`/`, `~`, dev/build folders, caches) grouped and explained for newcomers.
+- **Multi-distro** — works on Arch/CachyOS, Debian/Ubuntu, Fedora and more.
+  It detects your distribution and package manager and shows the right cleanup
+  command (`paccache`, `apt clean`, `dnf clean all`, `flatpak uninstall`…).
 - **Largest files** — a flat top-100 list of the biggest individual files.
 - **Color by file type** — switch the map to color videos, images, games, code,
   packages, etc. to spot what kind of thing is taking room.

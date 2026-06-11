@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useI18n } from "../lib/i18n";
 import { formatBytes } from "../lib/format";
-import { explainPath } from "../lib/linuxDirs";
+import { explainPath, type Explanation } from "../lib/linuxDirs";
 import { deletePaths } from "../lib/api";
 import type { DeleteMode } from "../lib/settings";
 import { SafetyBadge } from "./SafetyBadge";
@@ -12,22 +12,54 @@ export interface DeleteTarget {
   path: string;
   name: string;
   size: number;
+  isDir?: boolean;
+}
+
+/// Shared block rendering an explanation as labelled sections.
+function ExplanationBody({ ex }: { ex: Explanation }) {
+  const { t } = useI18n();
+  return (
+    <div className={`explain-body safety-${ex.safety}`}>
+      <SafetyBadge safety={ex.safety} />
+      <div className="explain-section">
+        <span className="explain-label">{t("explain.what")}</span>
+        <p>{ex.what}</p>
+      </div>
+      <div className="explain-section">
+        <span className="explain-label">{t("explain.risk")}</span>
+        <p>{ex.risk}</p>
+      </div>
+      {ex.tip && (
+        <div className="explain-section">
+          <span className="explain-label">{t("explain.tip")}</span>
+          <p className="explain-tip">{ex.tip}</p>
+        </div>
+      )}
+      {ex.sourceNote && <p className="explain-source">{ex.sourceNote}</p>}
+    </div>
+  );
 }
 
 export function ConfirmDeleteDialog({
   target,
   mode,
+  homeDir,
   onClose,
   onDeleted,
 }: {
   target: DeleteTarget;
   mode: DeleteMode;
+  homeDir?: string;
   onClose: () => void;
   onDeleted: () => void;
 }) {
   const { t, lang } = useI18n();
-  const explanation = explainPath(target.path, lang);
-  const isDanger = explanation?.safety === "danger";
+  const explanation = explainPath(target.path, lang, t, {
+    isDir: target.isDir,
+    homeDir,
+  });
+  const isDanger = explanation.safety === "danger";
+  const isUnknown = explanation.safety === "unknown";
   const [typed, setTyped] = useState("");
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState<string[] | null>(null);
@@ -54,12 +86,11 @@ export function ConfirmDeleteDialog({
           <span className="muted">{t("del.size")}</span>
           <strong>{formatBytes(target.size)}</strong>
         </div>
-        {explanation && (
-          <div className="del-explain">
-            <SafetyBadge safety={explanation.safety} />
-            <p>{explanation.text}</p>
-          </div>
-        )}
+
+        <ExplanationBody ex={explanation} />
+
+        {isUnknown && <div className="warn-box">{t("del.unknownWarn")}</div>}
+
         <p className={mode === "permanent" ? "warn-text" : "muted"}>
           {mode === "permanent" ? t("del.permanent") : t("del.toTrash")}
         </p>
@@ -107,27 +138,24 @@ export function ConfirmDeleteDialog({
 export function ExplainDialog({
   path,
   name,
+  isDir,
+  homeDir,
   onClose,
 }: {
   path: string;
   name: string;
+  isDir?: boolean;
+  homeDir?: string;
   onClose: () => void;
 }) {
   const { t, lang } = useI18n();
-  const explanation = explainPath(path, lang);
+  const explanation = explainPath(path, lang, t, { isDir, homeDir });
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <h2>{name}</h2>
         <div className="del-path" title={path}>{path}</div>
-        {explanation ? (
-          <div className="del-explain">
-            <SafetyBadge safety={explanation.safety} />
-            <p>{explanation.text}</p>
-          </div>
-        ) : (
-          <p className="muted">{t("explain.unknown")}</p>
-        )}
+        <ExplanationBody ex={explanation} />
         <div className="modal-actions">
           <button className="btn primary" onClick={onClose}>
             OK

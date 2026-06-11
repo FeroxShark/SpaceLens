@@ -1,6 +1,7 @@
 mod disks;
 mod fs_ops;
 mod scanner;
+mod system_info;
 
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -10,7 +11,7 @@ use std::time::Duration;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager, State};
 
-use scanner::{ChildDto, Progress, ScanResult, TopFileDto, TreeDto};
+use scanner::{ChildDto, DupGroup, Progress, ScanResult, TopFileDto, TreeDto};
 
 /// Session state: the most recent scan plus the live progress handle so an
 /// in-flight scan can be cancelled.
@@ -44,6 +45,11 @@ fn list_disks() -> Vec<disks::DiskDto> {
 #[tauri::command]
 fn home_dir() -> String {
     std::env::var("HOME").unwrap_or_else(|_| "/".to_string())
+}
+
+#[tauri::command]
+fn get_system_info() -> system_info::SystemInfoDto {
+    system_info::system_info()
 }
 
 /// Kick off a scan on a background thread. Progress is streamed via the
@@ -139,6 +145,22 @@ fn get_cleanup_suggestions() -> Vec<fs_ops::CleanupItem> {
     fs_ops::cleanup_suggestions()
 }
 
+/// Find duplicate files in the current scan. Hashing can take a while, so it
+/// runs on a blocking worker thread instead of the IPC handler.
+#[tauri::command]
+async fn get_duplicates(
+    state: State<'_, AppState>,
+    min_size: u64,
+) -> Result<Vec<DupGroup>, String> {
+    let scan = state.scan.lock().unwrap().clone();
+    let Some(scan) = scan else {
+        return Ok(Vec::new());
+    };
+    tauri::async_runtime::spawn_blocking(move || scan.duplicate_groups(min_size, 100))
+        .await
+        .map_err(|e| e.to_string())
+}
+
 /// Delete paths. `mode` is "trash" (default, recoverable) or "permanent".
 /// Returns a list of human-readable errors (empty on full success).
 #[tauri::command]
@@ -165,12 +187,14 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             list_disks,
             home_dir,
+            get_system_info,
             start_scan,
             cancel_scan,
             get_tree,
             get_children,
             get_top_files,
             get_cleanup_suggestions,
+            get_duplicates,
             delete_paths,
             open_in_file_manager,
         ])
