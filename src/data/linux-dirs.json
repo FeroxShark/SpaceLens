@@ -1,0 +1,177 @@
+[
+  {
+    "type": "prefix",
+    "value": "/usr",
+    "safety": "danger",
+    "en": "Installed programs and their shared files. Managed by your package manager — never delete by hand.",
+    "es": "Programas instalados y sus archivos compartidos. Lo maneja tu gestor de paquetes — nunca lo borres a mano."
+  },
+  {
+    "type": "prefix",
+    "value": "/boot",
+    "safety": "danger",
+    "en": "Your bootloader and kernel. Deleting anything here can make the system unbootable.",
+    "es": "Tu gestor de arranque y el kernel. Borrar algo acá puede dejar el sistema sin arrancar."
+  },
+  {
+    "type": "prefix",
+    "value": "/etc",
+    "safety": "danger",
+    "en": "System-wide configuration files. Small but critical — don't delete.",
+    "es": "Archivos de configuración de todo el sistema. Chico pero crítico — no lo borres."
+  },
+  {
+    "type": "prefix",
+    "value": "/proc",
+    "safety": "danger",
+    "en": "A virtual folder the kernel exposes live. It uses no real disk space.",
+    "es": "Carpeta virtual que el kernel muestra en vivo. No ocupa espacio real en disco."
+  },
+  {
+    "type": "prefix",
+    "value": "/sys",
+    "safety": "danger",
+    "en": "A virtual folder for kernel/hardware info. It uses no real disk space.",
+    "es": "Carpeta virtual con info del kernel/hardware. No ocupa espacio real en disco."
+  },
+  {
+    "type": "prefix",
+    "value": "/dev",
+    "safety": "danger",
+    "en": "Device files (disks, inputs). Virtual — uses no real disk space.",
+    "es": "Archivos de dispositivos (discos, entradas). Virtual — no ocupa espacio real."
+  },
+  {
+    "type": "prefix",
+    "value": "/run",
+    "safety": "danger",
+    "en": "Runtime data living in RAM. Cleared on reboot — leave it alone.",
+    "es": "Datos de ejecución que viven en RAM. Se limpian al reiniciar — no lo toques."
+  },
+  {
+    "type": "prefix",
+    "value": "/var/cache/pacman/pkg",
+    "safety": "caution",
+    "en": "Downloaded package files kept by pacman. Safe to clear with 'paccache -r', frees space but loses the ability to downgrade.",
+    "es": "Paquetes descargados que guarda pacman. Se puede limpiar con 'paccache -r', libera espacio pero perdés poder volver a una versión anterior."
+  },
+  {
+    "type": "prefix",
+    "value": "/var/log",
+    "safety": "caution",
+    "en": "System logs. Can grow large; safe to trim old logs but keep recent ones for troubleshooting.",
+    "es": "Registros del sistema. Pueden crecer mucho; se pueden recortar los viejos, pero dejá los recientes para diagnosticar problemas."
+  },
+  {
+    "type": "prefix",
+    "value": "/var",
+    "safety": "caution",
+    "en": "Variable system data: logs, caches, databases. Some parts are cleanable, others aren't — check before deleting.",
+    "es": "Datos variables del sistema: logs, cachés, bases de datos. Algunas partes se pueden limpiar, otras no — revisá antes de borrar."
+  },
+  {
+    "type": "prefix",
+    "value": "/tmp",
+    "safety": "safe",
+    "en": "Temporary files, wiped on reboot. Safe to clean.",
+    "es": "Archivos temporales, se borran al reiniciar. Seguro limpiar."
+  },
+  {
+    "type": "prefix",
+    "value": "/opt",
+    "safety": "caution",
+    "en": "Optional / third-party software installed outside the package manager.",
+    "es": "Software opcional o de terceros instalado fuera del gestor de paquetes."
+  },
+  {
+    "type": "basename",
+    "value": ".cache",
+    "safety": "safe",
+    "en": "Temporary cache files apps regenerate as needed. Safe to delete to reclaim space.",
+    "es": "Archivos de caché temporales que las apps regeneran solas. Seguro borrar para recuperar espacio."
+  },
+  {
+    "type": "basename",
+    "value": "Trash",
+    "safety": "safe",
+    "en": "Your trash bin. Emptying it permanently frees the space.",
+    "es": "Tu papelera. Vaciarla libera el espacio de forma definitiva."
+  },
+  {
+    "type": "basename",
+    "value": "node_modules",
+    "safety": "caution",
+    "en": "JavaScript project dependencies. Safe to delete for projects you're not using — restore later with 'npm install'.",
+    "es": "Dependencias de un proyecto JavaScript. Seguro borrar en proyectos que no uses — se restauran con 'npm install'."
+  },
+  {
+    "type": "basename",
+    "value": "target",
+    "safety": "caution",
+    "en": "Rust build output. Safe to delete; rebuilds on next 'cargo build'.",
+    "es": "Resultado de compilación de Rust. Seguro borrar; se reconstruye en el próximo 'cargo build'."
+  },
+  {
+    "type": "basename",
+    "value": "__pycache__",
+    "safety": "safe",
+    "en": "Python bytecode cache. Safe to delete; regenerated automatically.",
+    "es": "Caché de bytecode de Python. Seguro borrar; se regenera solo."
+  },
+  {
+    "type": "basename",
+    "value": ".git",
+    "safety": "danger",
+    "en": "A Git repository's full history. Deleting it loses all version history for that project.",
+    "es": "Toda la historia de un repositorio Git. Borrarlo pierde todo el historial de versiones de ese proyecto."
+  },
+  {
+    "type": "basename",
+    "value": ".venv",
+    "safety": "caution",
+    "en": "Python virtual environment. Safe to delete; recreate with your project's setup.",
+    "es": "Entorno virtual de Python. Seguro borrar; se recrea con la configuración de tu proyecto."
+  },
+  {
+    "type": "basename",
+    "value": ".rustup",
+    "safety": "caution",
+    "en": "Rust toolchains. Large but needed if you compile Rust. Don't delete unless you removed Rust.",
+    "es": "Toolchains de Rust. Grande pero necesario si compilás Rust. No lo borres salvo que hayas sacado Rust."
+  },
+  {
+    "type": "basename",
+    "value": ".cargo",
+    "safety": "caution",
+    "en": "Rust package cache and registry. Can be trimmed; rebuilds on demand.",
+    "es": "Caché y registro de paquetes de Rust. Se puede recortar; se reconstruye a demanda."
+  },
+  {
+    "type": "suffix",
+    "value": ".local/share/Steam",
+    "safety": "caution",
+    "en": "Steam games and data. Often the biggest folder — uninstall games from Steam itself to free space safely.",
+    "es": "Juegos y datos de Steam. Suele ser la carpeta más grande — desinstalá juegos desde el propio Steam para liberar espacio sin riesgo."
+  },
+  {
+    "type": "suffix",
+    "value": ".local/share/Trash",
+    "safety": "safe",
+    "en": "Your trash bin. Emptying it permanently frees the space.",
+    "es": "Tu papelera. Vaciarla libera el espacio de forma definitiva."
+  },
+  {
+    "type": "basename",
+    "value": ".local",
+    "safety": "caution",
+    "en": "Per-user app data and installed user programs. Mixed contents — check subfolders before deleting.",
+    "es": "Datos de apps por usuario y programas instalados para tu usuario. Contenido mezclado — revisá subcarpetas antes de borrar."
+  },
+  {
+    "type": "basename",
+    "value": ".config",
+    "safety": "caution",
+    "en": "Your personal app settings. Small but deleting resets apps to defaults.",
+    "es": "La configuración personal de tus apps. Chico, pero borrarlo deja las apps en valores por defecto."
+  }
+]
