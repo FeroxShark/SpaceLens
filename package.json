@@ -1,8 +1,12 @@
 {
   "name": "spacelens",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
+  "license": "MIT",
+  "author": "Ferox (FeroxShark)",
+  "description": "Visual disk usage analyzer for Linux — interactive treemap with a beginner-friendly guide to what each folder is and what's safe to delete.",
+  "homepage": "https://github.com/FeroxShark/SpaceLens",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
