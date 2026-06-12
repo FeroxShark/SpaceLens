@@ -10,6 +10,9 @@ folders, the largest files on your drive, and one-click cleanup of common junk.
 Built with [Tauri](https://tauri.app) (Rust) + React. Fast parallel scanning,
 tiny binary, native window.
 
+> A one-night project, built out of boredom. *Un proyecto de una sola noche,
+> hecho por aburrimiento.* 🌙
+
 ---
 
 ## Features
